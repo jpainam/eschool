@@ -1,45 +1,44 @@
 package com.edis.eschool;
 
-import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 
-import com.edis.eschool.dummy.DummyContent;
-import com.edis.eschool.sql.Database;
-import com.edis.eschool.student.StudentFragment;
 
-import java.util.ArrayList;
-import java.util.List;
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends AppCompatActivity implements StudentFragment.OnListFragmentInteractionListener {
 
-    //private TextView mTextMessage;
+    final Fragment fragment1 = new HomeFragment();
+    final Fragment fragment2 = new DashboardFragment();
+    final Fragment fragment3 = new NotificationsFragment();
+    final FragmentManager fm = getSupportFragmentManager();
+    Fragment active = fragment1;
 
-    private LinearLayout mainContentView;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-    Database myDb;
-    public static final int MULTIPLE_PERMISSIONS = 10;
-    String[] permissions= new String[]{
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.CAMERA,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION};
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
+        fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
+        fm.beginTransaction().add(R.id.main_container,fragment1, "1").commit();
+
+    }
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -48,94 +47,41 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    //mTextMessage.setText(R.string.title_home);
+                    fm.beginTransaction().hide(active).show(fragment1).commit();
+                    active = fragment1;
                     return true;
+
                 case R.id.navigation_dashboard:
-                    //mTextMessage.setText(R.string.title_dashboard);
+                    fm.beginTransaction().hide(active).show(fragment2).commit();
+                    active = fragment2;
                     return true;
+
                 case R.id.navigation_notifications:
-                    //.setText(R.string.title_notifications);
+                    fm.beginTransaction().hide(active).show(fragment3).commit();
+                    active = fragment3;
                     return true;
             }
             return false;
         }
     };
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //LocalBroadcastManager.getInstance(this).registerReceiver(mHandler,new IntentFilter("com.example.sadjang.myshool_FCM-MESSAGE"));
-        if (checkPermissions()) {
-            //  permissions  granted.
-            myDb = new Database(this);
-        }
-        myDb = new Database(this);
-
-        //if (myDb.getAllVisite().getCount() > 0) {
-
-            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-            startActivity(intent);
-            finish();
-        //} else {
-            /*mSlideViewPager = (ViewPager) findViewById(R.id.slideViewPager);
-            mDotLayout = (LinearLayout) findViewById(R.id.dotsLayout);
-            mNextBtn = (Button) findViewById(R.id.nextBtn);
-            mBackBtn = (Button) findViewById(R.id.prevBtn);
-
-
-            slideAdapter = new PresentationAdapter(this);
-            mSlideViewPager.setAdapter(slideAdapter);
-            addDotsIndicator(0);
-            mSlideViewPager.addOnPageChangeListener(viewListener);
-            mNextBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mNextBtn.getText().equals("Finish")) {
-                        //  inscription dans la bd
-                        myDb.isertVisite(1, getApplicationContext());
-                        partir();
-                    }
-                    mSlideViewPager.setCurrentItem(mCurrentPage + 1);
-                }
-            });
-
-            mBackBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mSlideViewPager.setCurrentItem(mCurrentPage - 1);
-                }
-            });*/
-            setContentView(R.layout.activity_main);
-
-            //mTextMessage = (TextView) findViewById(R.id.message);
-            mainContentView = (LinearLayout) findViewById(R.id.main_container);
-            if (savedInstanceState == null) {
-                getSupportFragmentManager().beginTransaction().add(R.id.main_container,
-                        new StudentFragment()).commit();
-            }
-            BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-            navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        //}
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
 
-        private  boolean checkPermissions() {
-            int result;
-            List<String> listPermissionsNeeded = new ArrayList<>();
-            for (String p:permissions) {
-                result = ContextCompat.checkSelfPermission(this,p);
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    listPermissionsNeeded.add(p);
-                }
-            }
-            if (!listPermissionsNeeded.isEmpty()) {
-                ActivityCompat.requestPermissions(this,
-                        listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), MULTIPLE_PERMISSIONS );
-                return false;
-            }
+        if (id == R.id.action_settings) {
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             return true;
         }
-    @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
 
+        return super.onOptionsItemSelected(item);
     }
+
+
 }

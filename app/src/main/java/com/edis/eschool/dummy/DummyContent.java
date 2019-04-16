@@ -25,6 +25,8 @@ public class DummyContent {
 
     private static final int COUNT = 25;
 
+    private static final char[] SEXE = {'M', 'F'};
+
     static {
         // Add some sample items.
         for (int i = 1; i <= COUNT; i++) {
@@ -38,7 +40,8 @@ public class DummyContent {
     }
 
     private static DummyItem createDummyItem(int position) {
-        return new DummyItem(String.valueOf(position), "Item " + position, makeDetails(position));
+        return new DummyItem(String.valueOf(position), "Etablissement " + position, makeDetails(position),
+                "Student " + position, SEXE[(int)(position + Math.random()*10) % 2]);
     }
 
     private static String makeDetails(int position) {
@@ -55,18 +58,21 @@ public class DummyContent {
      */
     public static class DummyItem {
         public final String id;
+        public final String name;
         public final String content;
         public final String details;
-
-        public DummyItem(String id, String content, String details) {
+        public final char sexe;
+        public DummyItem(String id, String content, String details, String name, char sexe) {
             this.id = id;
             this.content = content;
             this.details = details;
+            this.name = name;
+            this.sexe = sexe;
         }
 
         @Override
         public String toString() {
-            return content;
+            return id + " " + content + " " + details;
         }
     }
 }

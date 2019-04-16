@@ -12,7 +12,7 @@ import com.edis.eschool.pojo.Eleve;
 
 
 public class Database extends SQLiteOpenHelper {
-    public static final String DATABASE_NAME = "mobilschool.db";
+    public static final String DATABASE_NAME = "ediseschool.db";
     public static final String TABLE_NAME = "tuto";
     public static final String TABLE_NAME1 = "shool";
     public static final String TABLE_NAME2 = "personne";

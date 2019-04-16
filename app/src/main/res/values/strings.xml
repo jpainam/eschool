@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Eschool</string>
+    <string name="app_name">Edis E-School</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
@@ -17,6 +17,7 @@
         completions."
     </string>
     <string name="title_me">Me</string>
+    <string name="title_settings">Settings</string>
     <string name="settings">Settings</string>
     <string name="long_Text">
         This This This This This This This This This This This This This This This This This This This

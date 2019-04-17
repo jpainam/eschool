@@ -32,4 +32,6 @@
         Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment
     </string>
 
+    <string name="date">12:01:2019</string>
+    <string name="title">titre</string>
 </resources>

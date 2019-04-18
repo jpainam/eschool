@@ -8,16 +8,30 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.edis.eschool.ClasseGlobal;
+import com.edis.eschool.notification.NotificationDao;
 import com.edis.eschool.pojo.Eleve;
 import com.edis.eschool.pojo.Notifications;
+import com.edis.eschool.pojo.Student;
+import com.edis.eschool.pojo.User;
+import com.edis.eschool.student.StudentDao;
+import com.edis.eschool.user.UserDao;
 
-public class Databases extends SQLiteOpenHelper {
-    private static final String TAG = "Databases";
+public class DatabaseHelper extends SQLiteOpenHelper {
+    private static final String TAG = "DatabaseHelper";
+
+    private static DatabaseHelper sInstance;
+
+    public static synchronized DatabaseHelper getInstance(Context context) {
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // http://bit.ly/6LRzfx
+        if (sInstance == null) {
+            sInstance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
 
     public static final String DATABASE_NAME = "eschool.db";
-    public static final String TABLE_USER = "user";
-    public static final String TABLE_NAME1 = "shool";
-    public static final String TABLE_NOTIFICATION = "notification";
 
     ///////////////////////////////////////////
     public static final String COL_A = "ID";
@@ -53,51 +67,49 @@ public class Databases extends SQLiteOpenHelper {
 
 
     //  colonne notification
-    public static final String IDNOTIFICATION = "IDNOTIFICATION";
-    public static final String TITRENOTIFICATION = "TITRENOTIFICATION";
-    public static final String MESSAGENOTIFICATION = "MESSAGENOTIFICATION";
-    public static final String IMAGENOTIFICATION = "IMAGENOTIFICATION";
-    public static final String TYPENOTIFICATION = "TYPENOTIFICATION";
-    public static final String DATENOTIFICATION = "DATENOTIFICATION";
-    public static final String NOTIFICATIONLU = "NOTIFICATIONLU";
-
 
 
     Context context;
 
-    public Databases(Context context) {
+    private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
         this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table " + TABLE_NOTIFICATION + " (" + IDNOTIFICATION + " INTEGER PRIMARY KEY AUTOINCREMENT," + TITRENOTIFICATION + " TEXT," + MESSAGENOTIFICATION + " TEXT," + IMAGENOTIFICATION + " INTEGER," + TYPENOTIFICATION + " TEXT," + DATENOTIFICATION + " TEXT," + NOTIFICATIONLU + " INTEGER)");
-        db.execSQL("create table " + TABLE_USER + " (" + COL_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COL_USER_VISITE + " INTEGER," + COL_USER_TOKEN + " TEXT)");
-        db.execSQL("create table " + TABLE_NAME1 + " (" + COL_21 + " INTEGER," + COL_22 + " TEXT," + COL_23 + " INTEGER," + COL_24 + " TEXT," + COL_25 + " TEXT," + COL_26 + " TEXT)");
+        db.execSQL("create table " + NotificationDao.TABLE_NOTIFICATION +
+                " (" + NotificationDao.IDNOTIFICATION + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                NotificationDao.TITRENOTIFICATION + " TEXT," +
+                NotificationDao.MESSAGENOTIFICATION + " TEXT," +
+                NotificationDao.IMAGENOTIFICATION + " INTEGER," +
+                NotificationDao.TYPENOTIFICATION + " TEXT," +
+                NotificationDao.DATENOTIFICATION + " TEXT," +
+                NotificationDao.NOTIFICATIONLU + " INTEGER)");
+
+        db.execSQL("create table " + StudentDao.TABLE_STUDENT +
+                " (" + StudentDao.COL_STUDENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                StudentDao.COL_STUDENT_FIRSTNAME + " TEXT," +
+                StudentDao.COL_STUDENT_LASTNAME + " TEXT," +
+                StudentDao.COL_STUDENT_SEXE + " TEXT," +
+                StudentDao.COL_STUDENT_CLASSE + " TEXT," +
+                StudentDao.COL_STUDENT_ETABLISSEMENT + " TEXT)");
+
+        db.execSQL("create table " + UserDao.TABLE_USER + " (" + COL_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                COL_USER_VISITE + " INTEGER," + COL_USER_TOKEN + " TEXT)");
+        db.execSQL("create table " + UserDao.TABLE_NAME1 + " (" + COL_21 + " INTEGER," + COL_22 + " TEXT," +
+                COL_23 + " INTEGER," + COL_24 + " TEXT," + COL_25 + " TEXT," + COL_26 + " TEXT)");
         //    db.execSQL("create table " + TABLE_NAME2 + " (" + COL_31 + " INTEGER," + COL_32 + " TEXT," + COL_33 + " TEXT," + COL_34 + " TEXT," + COL_35 + " TEXT," + COL_36 + " TEXT," + COL_37 + " TEXT," + COL_38 + " TEXT)");
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATION);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME1);
-        //  db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME2);
+        db.execSQL("DROP TABLE IF EXISTS " + NotificationDao.TABLE_NOTIFICATION);
+        db.execSQL("DROP TABLE IF EXISTS " + UserDao.TABLE_USER);
+        db.execSQL("DROP TABLE IF EXISTS " + StudentDao.TABLE_STUDENT);
         onCreate(db);
     }
-    ////  delete notification
-    public void deleteNotifiction(int idnotification) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("delete from " + TABLE_NOTIFICATION + " where " + IDNOTIFICATION + "='" + idnotification + "'");
-
-    }
-
-    ////////////////////////
-
-
-
 
 
     public void delete(String table_name) {
@@ -107,59 +119,16 @@ public class Databases extends SQLiteOpenHelper {
 
     public void deleteEcole(String idecole) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("delete from " + TABLE_NAME1 + " where " + COL_21 + "='" + idecole + "'");
+        db.execSQL("delete from " + UserDao.TABLE_NAME1 + " where " + COL_21 + "='" + idecole + "'");
 
     }
 
     public void deleteNetoyage(int visiste) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("delete from " + TABLE_USER + " where " + COL_USER_VISITE + "='" + visiste + "'");
+        db.execSQL("delete from " + UserDao.TABLE_USER + " where " + COL_USER_VISITE + "='" + visiste + "'");
 
     }
 
-    /////////////////////////////////////
-    // netoyage des ancien raport
-    public void drop() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME1);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATION);
-        onCreate(db);
-    }
-
-
-
-    public Notifications isertNotification(String  titre, String message, int imagenotification, String typenotification, String datenotification, int notificationlue) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(TITRENOTIFICATION, titre);
-        contentValues.put(MESSAGENOTIFICATION, message);
-        contentValues.put(IMAGENOTIFICATION, imagenotification);
-        contentValues.put(TYPENOTIFICATION, typenotification);
-        contentValues.put(DATENOTIFICATION, datenotification);
-        contentValues.put(NOTIFICATIONLU, notificationlue);
-        long result = db.insert(TABLE_NOTIFICATION, null, contentValues);
-        if (result == -1)
-            return null;
-        else
-            return getNotification(result);
-    }
-
-    public Notifications getNotification(long id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NOTIFICATION + " where " + IDNOTIFICATION + "='" + id + "'", null);
-        Notifications notifications=new Notifications();
-        while (res.moveToNext()) {
-            notifications.setIdnotification(res.getInt(0));
-            notifications.setTitre(res.getString(1));
-            notifications.setMessage(res.getString(2));
-            notifications.setImage(res.getInt(3));
-            notifications.setType(res.getString(4));
-            notifications.setDate(res.getString(5));
-            notifications.setLu(res.getInt(6));
-        }
-        return notifications;
-    }
 
     public boolean isertVisite(int visite, Context context) {
         ClasseGlobal global = (ClasseGlobal) context;
@@ -167,7 +136,7 @@ public class Databases extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_USER_VISITE, visite);
         contentValues.put(COL_USER_TOKEN, global.getToken());
-        long result = db.insert(TABLE_USER, null, contentValues);
+        long result = db.insert(UserDao.TABLE_USER, null, contentValues);
         if (result == -1)
             return false;
         else
@@ -182,16 +151,16 @@ public class Databases extends SQLiteOpenHelper {
         Log.e("tokenfibases", token);
         contentValues.put(COL_USER_TOKEN, token);
         Log.e("tokenfibasesG", token);
-        int result = db.update(TABLE_USER, contentValues, "" + COL_USER_ID + " = ? ", new String[]{identifiant});
+        int result = db.update(UserDao.TABLE_USER, contentValues, "" + COL_USER_ID + " = ? ", new String[]{identifiant});
         Log.e("tokenfibasesgg", String.valueOf(result));
         return true;
     }
 
-    public String getSavedToken(String identifiant){
+    public String getSavedToken(String identifiant) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_USER + " where " +
+        Cursor res = db.rawQuery("select * from " + UserDao.TABLE_USER + " where " +
                 COL_USER_ID + "='" + identifiant + "'", null);
-        if(res.moveToFirst()) {
+        if (res.moveToFirst()) {
             return res.getString(res.getColumnIndex(COL_USER_TOKEN));
         }
         Log.e(TAG, "TOKEN NOT SET");
@@ -254,10 +223,10 @@ public class Databases extends SQLiteOpenHelper {
         if (Serveur != null) {
             initialValues.put(COL_26, Serveur);
         }
-        int id = (int) db.insertWithOnConflict(TABLE_NAME1, null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
+        int id = (int) db.insertWithOnConflict(UserDao.TABLE_NAME1, null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
         Log.e("validation", String.valueOf(id) + " id insertion");
         if (id == -1) {
-            db.update(TABLE_NAME1, initialValues, COL_21 + "=?", new String[]{"1"});  // number 1 is the _id here, update to variable for your code
+            db.update(UserDao.TABLE_NAME1, initialValues, COL_21 + "=?", new String[]{"1"});  // number 1 is the _id here, update to variable for your code
             Log.e("validation", "true 1");
             return true;
         } else {
@@ -279,32 +248,28 @@ public class Databases extends SQLiteOpenHelper {
     Cursor res = db.rawQuery("select * from "+TABLE_NAME2,null);
     return res;
 }*/
-    public Cursor getAllNotification() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NOTIFICATION, null);
-        return res;
-    }
+
     public Cursor getAllVisite() {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_USER, null);
+        Cursor res = db.rawQuery("select * from " + UserDao.TABLE_USER, null);
         return res;
     }
 
     public Cursor getAllShool() {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NAME1, null);
+        Cursor res = db.rawQuery("select * from " + UserDao.TABLE_NAME1, null);
         return res;
     }
 
     public Cursor getAllSchoolID(int IDSchool) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NAME1 + " where " + COL_21 + "='" + IDSchool + "'", null);
+        Cursor res = db.rawQuery("select * from " + UserDao.TABLE_NAME1 + " where " + COL_21 + "='" + IDSchool + "'", null);
         return res;
     }
 
     public boolean getAllSchoolID(String Chemin, String Serveur) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NAME1 + " where " + COL_25 + "='" + Chemin + "' and " + COL_26 + "='" + Serveur + "'", null);
+        Cursor res = db.rawQuery("select * from " + UserDao.TABLE_NAME1 + " where " + COL_25 + "='" + Chemin + "' and " + COL_26 + "='" + Serveur + "'", null);
         if (res.getCount() > 0) {
             return true;
         } else {
@@ -315,7 +280,7 @@ public class Databases extends SQLiteOpenHelper {
 
     public boolean getElevepariculier(Eleve eleve) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NAME1 + " where " + COL_21 + "='" + eleve.getIdeleve() + "' and " + COL_25 + "='" + eleve.getNom() + "'", null);
+        Cursor res = db.rawQuery("select * from " + UserDao.TABLE_NAME1 + " where " + COL_21 + "='" + eleve.getIdeleve() + "' and " + COL_25 + "='" + eleve.getNom() + "'", null);
         if (res.getCount() > 0) {
             return true;
         } else {
@@ -325,25 +290,9 @@ public class Databases extends SQLiteOpenHelper {
 
     public Cursor gettuto(String idoperateur) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_USER + " where " + COL_USER_ID + "='" + idoperateur + "'", null);
+        Cursor res = db.rawQuery("select * from " + UserDao.TABLE_USER + " where " + COL_USER_ID + "='" + idoperateur + "'", null);
         return res;
     }
-
-    public Cursor getAllNewNotification(int lastId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NOTIFICATION + " where " + IDNOTIFICATION + ">'" + lastId + "'", null);
-        return res;
-    }
-
-    public boolean updcheckNotification(int idnotification) {
-       String  idnotif= String.valueOf(idnotification);
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(NOTIFICATIONLU, 1);
-        int result = db.update(TABLE_NOTIFICATION, contentValues, "" + IDNOTIFICATION + " = ? ", new String[]{idnotif});
-        return true;
-    }
-
 
 
     //////

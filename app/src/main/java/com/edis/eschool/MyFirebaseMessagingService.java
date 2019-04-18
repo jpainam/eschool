@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,15 +16,15 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.edis.eschool.notification.NotificationDao;
 import com.edis.eschool.pojo.Notifications;
-import com.edis.eschool.sql.Databases;
+import com.edis.eschool.sql.DatabaseHelper;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 
 /**
@@ -40,7 +41,7 @@ import java.util.Date;
 
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService{
-    Databases myDb;
+    DatabaseHelper myDb;
     private NotificationManager mNotificationManager;
     private NotificationCompat.Builder mBuilder;
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
@@ -49,15 +50,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService{
     public void onNewToken(String s) {
         this.context=this;
         Log.e("NEW_TOKEN", s);
-        String refreshedToken= s;
-        myDb = new Databases(this);
-        myDb.updateDatatuto(refreshedToken,"1");
+        String refreshedToken = s;
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(
+                getString(R.string.shared_preference_file), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(getString(R.string.firebase_token), refreshedToken);
+        editor.commit();
     }
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         this.context=this;
-        myDb = new Databases(this);
+        myDb = DatabaseHelper.getInstance(this);
         Log.e("NEW_TOKEN", "reception de la notification");
         if(remoteMessage!=null){
             Log.e("NEW_TOKEN", "ici la");
@@ -114,7 +118,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService{
             if(tablemessage[0].equals("absence")){
                 imagenotification=0;
             }
-            Notifications notification=myDb.isertNotification(title,tablemessage[tablemessage.length-2],imagenotification,tablemessage[0],tablemessage[tablemessage.length-1],0);
+            NotificationDao dao = new NotificationDao(context);
+            Notifications notification=dao.isertNotification(title,tablemessage[tablemessage.length-2],imagenotification,tablemessage[0],tablemessage[tablemessage.length-1],0);
             return notification;
 
 
@@ -122,7 +127,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService{
             @SuppressLint("SimpleDateFormat")
             DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy, HH:mm");
             String date = df.format(Calendar.getInstance().getTime());
-            Notifications notification= myDb.isertNotification(title,message,0,"generale",date,0);
+            NotificationDao dao = new NotificationDao(context);
+            Notifications notification= dao.isertNotification(title,message,0,"generale",date,0);
             return notification;
 
         }

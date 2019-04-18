@@ -9,10 +9,15 @@ import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.edis.eschool.utils.Contante;
+import com.edis.eschool.pojo.Student;
+import com.edis.eschool.student.StudentDao;
+import com.edis.eschool.utils.Constante;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URL;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -58,8 +63,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          * create after last sync time. Fetch from the local database
          */
         String lastSyncTime = "2014-12-12";
-        String url = Contante.SERVER_PATH + "sync.php?lastSyncTime=" + lastSyncTime;
-        Log.i(TAG, "Streaming data from network: " + url);
+        String url = Constante.SERVER_PATH + "sync.php?lastSyncTime=" + lastSyncTime;
+        Log.i(TAG, "Last time Sync " + lastSyncTime + " from " + url);
         String jsonData = donwloadData(url);
         updateLocalDatabase(jsonData);
         Log.i(TAG, "Streaming completed");
@@ -72,7 +77,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 .build();
         Response response;
         String jsonData = null;
-
         try {
             response = client.newCall(request).execute();
             jsonData = response.body().string();
@@ -85,6 +89,40 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     public void updateLocalDatabase(String jsonData) {
-        System.out.println(jsonData);
+        if (jsonData != null) {
+            if (jsonData != "404") {
+                try {
+                    JSONObject data = new JSONObject(jsonData);
+                    boolean success = data.getBoolean("success");
+                    if(success) {
+                        Log.i(TAG, "Updating Local Database");
+                        JSONArray studentData = data.getJSONArray("students");
+                        syncStudent(studentData);
+                    }
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                    Log.e(TAG, ex.getMessage());
+                }
+            }
+        }
+    }
+
+    private void syncStudent(JSONArray data) throws JSONException {
+
+        for (int i = 0; i < data.length(); i++) {
+            Log.i(TAG, "Syncing Student");
+            JSONObject item = data.getJSONObject(i);
+            StudentDao dao = new StudentDao(getContext());
+            int id = Integer.parseInt(item.getString("id"));
+            String firstname = item.getString("firstname");
+            String lastname = item.getString("lastname");
+            String sexe = item.getString("sex");
+            String etablissement = item.getString("etablissement");
+            String classe = item.getString("classe");
+            Student st = new Student(id, firstname, lastname, sexe,
+                    classe, etablissement);
+            Log.i(TAG, st.toString());
+            dao.insert(st);
+        }
     }
 }

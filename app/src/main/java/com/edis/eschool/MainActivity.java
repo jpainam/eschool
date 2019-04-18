@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -15,7 +16,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.edis.eschool.utils.Contante;
+
+import com.edis.eschool.pojo.Student;
+import com.edis.eschool.pojo.User;
+import com.edis.eschool.sql.DatabaseHelper;
+import com.edis.eschool.user.UserDao;
+import com.edis.eschool.utils.Constante;
 import com.edis.eschool.dummy.DummyContent;
 import com.edis.eschool.student.StudentFragment;
 
@@ -30,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
     private static final String TAG = "MainActivity";
     // Instance fields
     Account mAccount;
+    DatabaseHelper databaseHelper;
     //final Fragment fragment1 = new HomeFragment();
     final Fragment fragment1 = new StudentFragment();
     final Fragment fragment2 = new DashboardFragment();
@@ -41,10 +48,25 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Create the edis account
+
+        /**
+         * If first run, manually sync the local database with the remote database
+         */
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(
+                getString(R.string.shared_preference_file), Context.MODE_PRIVATE);
+        int visite = pref.getInt(getString(R.string.visite), 0);
+        if(visite == 0){
+            // TODO : Open the tuto page
+        }
+        String phone_number = pref.getString(getString(R.string.phone_number), null);
+        if(phone_number == null){
+            // User not authenticated
+            Log.i(TAG, "Start Login Activity - First time run");
+            startLoginActivity();
+        }
+        databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
+        Log.i(TAG,"Getting database Instance");
         mAccount = CreateSyncAccount(this);
-        //testData();
-        manualSynch();
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -58,27 +80,6 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
         fm.beginTransaction().add(R.id.main_container,fragment1, "1").commit();
 
     }
-    private void testData(){
-        String url = Contante.SERVER_PATH + "sync.php?lastSyncTime=2012-01-01";
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        Response response;
-        String jsonData = null;
-
-        try {
-            response = client.newCall(request).execute();
-            jsonData = response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, e.getMessage());
-        }
-
-        System.out.println(jsonData);
-
-    }
     /**
      * Create a new edis account for the sync adapter
      *
@@ -87,11 +88,12 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
     public static Account CreateSyncAccount(Context context) {
         // Create the account type and default account
         Account newAccount = new Account(
-                Contante.ACCOUNT, Contante.ACCOUNT_TYPE);
+                Constante.ACCOUNT, Constante.ACCOUNT_TYPE);
         // Get an instance of the Android account manager
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(
                         ACCOUNT_SERVICE);
+        ContentResolver.setSyncAutomatically(newAccount, Constante.AUTHORITY, true);
         /*
          * Add the account and account type, no password or user data
          * If successful, return the Account object, otherwise report an error.
@@ -103,34 +105,25 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
              * then call context.setIsSyncable(account, AUTHORITY, 1)
              * here.
              */
+            ContentResolver.setIsSyncable(newAccount, Constante.AUTHORITY, 1);
             Log.i(TAG,
-                    "Account " + Contante.ACCOUNT + " " + Contante.ACCOUNT_TYPE+ " created");
+                    "Account " + Constante.ACCOUNT + " " + Constante.ACCOUNT_TYPE+ " created");
             return newAccount;
         } else {
             /*
              * The account exists or some other error occurred. Log this, report it,
              * or handle it internally.
              */
-            Log.e(TAG, "Account already exists");
+            Log.i(TAG, "Account already exists");
             return newAccount;
         }
     }
 
-    private void manualSynch(){
-        /** Pass the settings flags by inserting them in a bundle */
-        Bundle settingsBundle = new Bundle();
-        settingsBundle.putBoolean(
-                ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        settingsBundle.putBoolean(
-                ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        /*
-         * Request the sync for the default account, authority, and
-         * manual sync settings
-         */
-        ContentResolver.requestSync(mAccount, Contante.AUTHORITY, settingsBundle);
-        System.out.println("Je suis fort " + mAccount);
+    private void startLoginActivity(){
+        Intent intent=new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
-
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -177,8 +170,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
 
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
-        System.out.println(item.name);
-        manualSynch();
+    public void onListFragmentInteraction(Student item) {
+        System.out.println(item.getFirstName() + " " + item.getLastName());
     }
 }

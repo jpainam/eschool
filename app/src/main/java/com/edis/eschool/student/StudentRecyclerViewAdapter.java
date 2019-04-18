@@ -9,6 +9,8 @@ import android.widget.TextView;
 import com.edis.eschool.R;
 
 import com.edis.eschool.dummy.DummyContent.DummyItem;
+import com.edis.eschool.pojo.Student;
+import com.edis.eschool.utils.Constante;
 
 import java.util.List;
 
@@ -21,10 +23,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class StudentRecyclerViewAdapter extends RecyclerView.Adapter<StudentRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<Student> mValues;
     private final StudentFragment.OnListFragmentInteractionListener mListener;
 
-    public StudentRecyclerViewAdapter(List<DummyItem> items, StudentFragment.OnListFragmentInteractionListener listener) {
+    public StudentRecyclerViewAdapter(List<Student> items, StudentFragment.OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -39,15 +41,15 @@ public class StudentRecyclerViewAdapter extends RecyclerView.Adapter<StudentRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mStudentName.setText(mValues.get(position).name);
-        if(mValues.get(position).sexe == 'M') {
+        holder.mStudentName.setText(mValues.get(position).getLastName());
+        if(mValues.get(position).getSexe() == Constante.MALE) {
             holder.mIconView.setImageResource(R.drawable.male_avatar);
         }else{
             holder.mIconView.setImageResource(R.drawable.female_avatar);
         }
         //holder.mStudentName.setText(mValues.get(position).id);
         holder.mStudentNotifs.setText((int)(Math.random()*10) + "");
-        holder.mStudentDescription.setText(mValues.get(position).content);
+        holder.mStudentDescription.setText(mValues.get(position).getEtablissement());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,7 +75,7 @@ public class StudentRecyclerViewAdapter extends RecyclerView.Adapter<StudentRecy
         public final TextView mStudentDate;
         public final TextView mStudentNotifs;
         public final TextView mStudentDescription;
-        public DummyItem mItem;
+        public Student mItem;
 
         public ViewHolder(View view) {
             super(view);

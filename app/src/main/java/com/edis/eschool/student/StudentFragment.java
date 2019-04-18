@@ -1,17 +1,24 @@
 package com.edis.eschool.student;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.edis.eschool.R;
 import com.edis.eschool.dummy.DummyContent.DummyItem;
+import com.edis.eschool.pojo.Student;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.edis.eschool.dummy.DummyContent.*;
 
@@ -22,6 +29,7 @@ import static com.edis.eschool.dummy.DummyContent.*;
  * interface.
  */
 public class StudentFragment extends Fragment {
+    private static final String TAG = "StudentFragment";
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -29,6 +37,9 @@ public class StudentFragment extends Fragment {
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
+    RecyclerView recyclerView;
+    public List<Student> studentList;
+    public StudentRecyclerViewAdapter studentRecyclerViewAdapter;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -43,6 +54,7 @@ public class StudentFragment extends Fragment {
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -63,17 +75,38 @@ public class StudentFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view;
+            initStudentListView();
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new StudentRecyclerViewAdapter(ITEMS, mListener));
+            studentRecyclerViewAdapter = new StudentRecyclerViewAdapter(studentList, mListener);
+            recyclerView.setAdapter(studentRecyclerViewAdapter);
         }
         return view;
     }
 
+    public void initStudentListView(){
+        Log.i(TAG, "Running initStudentListView");
+        studentList = new ArrayList<>();
+        AsyncTask<URL, Integer, List<Student>> asyncTask = new AsyncTask<URL, Integer, List<Student>>() {
+            @Override
+            protected List<Student> doInBackground(URL... urls) {
+                StudentDao dao = new StudentDao(getContext());
+                return dao.getStudentList();
+            }
+
+            @Override
+            protected void onPostExecute(List<Student> students) {
+                studentList.addAll(students);
+                studentRecyclerViewAdapter.notifyDataSetChanged();
+            }
+        };
+        asyncTask.execute();
+        Log.i(TAG, "End InitStudentListView");
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -104,6 +137,6 @@ public class StudentFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Student item);
     }
 }

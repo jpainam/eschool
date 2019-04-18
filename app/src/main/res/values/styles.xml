@@ -12,7 +12,7 @@
 
     <style name="Caption">
 
-        <item name="android:textStyle">bold</item>
+        <!-- item name="android:textStyle">bold</item -->
         <item name="android:textColor">@color/colorCaption</item>
     </style>
 

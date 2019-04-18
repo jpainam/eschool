@@ -37,13 +37,14 @@
 
         <provider
             android:name="com.edis.eschool.sync.StubProvider"
-            android:authorities="com.edis.eschool.android.datasync.provider"
+            android:authorities="com.edis.eschool.datasync.provider"
             android:exported="false"
             android:syncable="true"/>
 
         <service
-            android:name="com.edis.eschool.sync.SyncService"
+            android:name=".sync.SyncService"
             android:exported="true"
+            android:process=":sync"
             >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter"/>
@@ -57,7 +58,6 @@
         <activity android:name=".SettingsActivity"
             android:label="Settings"></activity>
         <activity android:name=".DetailNotification"></activity>
-        <activity android:name=".ListeNotifications"></activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">

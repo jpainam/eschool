@@ -34,4 +34,10 @@
 
     <string name="date">12:01:2019</string>
     <string name="title">titre</string>
+    <string name="authority">com.edis.eschool.datasync.provider</string>
+    <string name="account_type">edis.com</string>
+    <string name="shared_preference_file">com.edis.shared_preference_file</string>
+    <string name="visite">com.edis.visite</string>
+    <string name="firebase_token">com.edis.firebase_token</string>
+    <string name="phone_number">com.edis.phone_number</string>
 </resources>

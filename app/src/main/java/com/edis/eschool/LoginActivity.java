@@ -3,7 +3,9 @@ package com.edis.eschool;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -32,6 +34,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.edis.eschool.pojo.User;
+import com.edis.eschool.utils.Constante;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +52,7 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+    private static String TAG = "LoginActivity";
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -311,50 +315,56 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        private final String mToken;
+        private SharedPreferences pref;
 
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
+            pref = getApplicationContext().getSharedPreferences(
+                    getString(R.string.shared_preference_file), Context.MODE_PRIVATE);
+            mToken = pref.getString(getString(R.string.firebase_token), "");
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-
-            /*OkHttpClient client =new OkHttpClient();
-            Log.e("urlshow",Contante.SERVER_PATH + "?table=alluser");
-            Log.e("urlshownu",user.getNum_phone());
-            Log.e("urlshowp" ,user.getPassword());
-            Log.e("urlshowt",user.getToken());
+            String url = Constante.SERVER_PATH + "login.php";
+            OkHttpClient client =new OkHttpClient();
+            Log.e(TAG, url);
             RequestBody body =new FormBody.Builder()
-                    .add("numerophone",user.getNum_phone())
-                    .add("password",user.getPassword())
-                    .add("token",user.getToken())
+                    .add("phonenumber", mEmail)
+                    .add("password", mPassword)
+                    .add("token", mToken)
                     .build();
             Request newReq=new Request.Builder()
-                    .url(Contante.SERVER_PATH + "login.php?table=alluser")
+                    .url(url)
                     .post(body)
                     .build();
-            String jsonData=null;
             try {
-                Response response=client.newCall(newReq).execute();
-                jsonData=response.body().string();
-                Log.e("reponse r",jsonData);
-
+                Response response = client.newCall(newReq).execute();
+                String jsonData = response.body().string();
+                Log.e(TAG, jsonData);
+                /**
+                 * register the new account here and do something with the jsonData
+                 */
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putString(getString(R.string.phone_number), mEmail);
+                editor.commit();
+                return true;
             } catch (IOException e) {
                 e.printStackTrace();
-                //   Log.e("reponse erreur",e.getMessage());
+                Log.e(TAG, e.getMessage());
                 if(e.getMessage().equals("timeout")){
-
+                    Log.e(TAG, "Erreur de connextion Time Out");
                     // showDialogue("Erreur de connection\n reasayer Svp") ;
                 }else{
+                    Log.e(TAG, "Erreur de Connexion inconnu");
                     //  showDialogue("Erreur "+e.getMessage()) ;
                 }
-            }*/
-            // return jsonData;
-            // Do something with jsonData
-            // TODO: register the new account here.
-            return true;
+            }
+            // TODO:
+            return false;
         }
 
         @Override

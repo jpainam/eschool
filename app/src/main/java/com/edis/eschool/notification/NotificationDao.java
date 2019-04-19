@@ -72,13 +72,6 @@ public class NotificationDao {
         return true;
     }
 
-    public void drop() {
-        SQLiteDatabase db = databaseHelper.getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS " + UserDao.TABLE_USER);
-        db.execSQL("DROP TABLE IF EXISTS " + UserDao.TABLE_NAME1);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATION);
-        databaseHelper.onCreate(db);
-    }
 
     public Cursor getAllNotification() {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();

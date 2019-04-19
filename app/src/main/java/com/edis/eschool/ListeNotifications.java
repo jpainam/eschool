@@ -24,8 +24,7 @@ import android.widget.EditText;
 import com.edis.eschool.MyAdapter.NotificationsAdapteur;
 import com.edis.eschool.notification.NotificationDao;
 import com.edis.eschool.pojo.Notifications;
-import com.edis.eschool.sql.Database;
-import com.edis.eschool.sql.DatabaseHelper;
+
 
 public class ListeNotifications extends Fragment {
     RecyclerView myrv;

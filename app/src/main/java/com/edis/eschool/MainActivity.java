@@ -24,6 +24,7 @@ import com.edis.eschool.user.UserDao;
 import com.edis.eschool.utils.Constante;
 import com.edis.eschool.dummy.DummyContent;
 import com.edis.eschool.student.StudentFragment;
+import com.facebook.drawee.backends.pipeline.Fresco;
 
 import java.io.IOException;
 
@@ -48,23 +49,23 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Fresco.initialize(this);
         /**
          * If first run, manually sync the local database with the remote database
          */
         SharedPreferences pref = getApplicationContext().getSharedPreferences(
                 getString(R.string.shared_preference_file), Context.MODE_PRIVATE);
 
-        if(!pref.contains(getString(R.string.visite))){
+        if (!pref.contains(getString(R.string.visite))) {
             // TODO : Open the tuto page
         }
-        if(!pref.contains(getString(R.string.phone_number))){
+        if (!pref.contains(getString(R.string.phone_number))) {
             // User not authenticated
             Log.i(TAG, "Start Login Activity - First time run");
             startLoginActivity();
         }
         databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
-        Log.i(TAG,"Getting database Instance");
+        Log.i(TAG, "Getting database Instance");
         mAccount = CreateSyncAccount(this);
         manualSynch();
         setContentView(R.layout.activity_main);
@@ -77,9 +78,10 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
 
         fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
         fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
-        fm.beginTransaction().add(R.id.main_container,fragment1, "1").commit();
+        fm.beginTransaction().add(R.id.main_container, fragment1, "1").commit();
 
     }
+
     /**
      * Create a new edis account for the sync adapter
      *
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
              */
             ContentResolver.setIsSyncable(newAccount, Constante.AUTHORITY, 1);
             Log.i(TAG,
-                    "Account " + Constante.ACCOUNT + " " + Constante.ACCOUNT_TYPE+ " created");
+                    "Account " + Constante.ACCOUNT + " " + Constante.ACCOUNT_TYPE + " created");
             return newAccount;
         } else {
             /*
@@ -119,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
         }
     }
 
-    private void manualSynch(){
+    private void manualSynch() {
         /** Pass the settings flags by inserting them in a bundle */
         Bundle settingsBundle = new Bundle();
         settingsBundle.putBoolean(
@@ -134,8 +136,8 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
         Log.i(TAG, "Manual Sync Finish");
     }
 
-    private void startLoginActivity(){
-        Intent intent=new Intent(getApplicationContext(), LoginActivity.class);
+    private void startLoginActivity() {
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
         startActivity(intent);
         finish();
     }
@@ -171,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -186,6 +189,10 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
 
     @Override
     public void onListFragmentInteraction(Student item) {
-        System.out.println(item.getFirstName() + " " + item.getLastName());
+        Log.i(TAG, item.getFirstName() + " " + item.getLastName());
+        Intent intent = new Intent(getApplicationContext(), InnerMenuActivity.class);
+        intent.putExtra("student", item);
+        startActivity(intent);
+        //finish();
     }
 }

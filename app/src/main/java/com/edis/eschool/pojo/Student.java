@@ -33,6 +33,10 @@ public class Student implements Serializable {
     @SerializedName("sexe")
     private String sexe;
 
+    @SerializedName("photo")
+    private String photo;
+
+
     public int getId() {
         return id;
     }
@@ -77,5 +81,13 @@ public class Student implements Serializable {
 
     public void setEtablissement(String etablissement) {
         this.etablissement = etablissement;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 }

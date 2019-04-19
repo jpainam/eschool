@@ -17,9 +17,12 @@ public class Constante {
     public static final String ACCOUNT = "edisaccount";
 
     public static final String MALE = "M";
+    public static final String MALE_AVATAR = "male_avatar.png";
     public static final String FEMALE = "F";
+    public static final String FEMALE_AVATAR = "female_avatar.png";
 
-    public static final String SHARED_PREFERENCE_FILE = "shared_preferences";
 
     public static final int PHONE_NUMBER_LENGTH = 8;
+
+    public static  final String IMG_DIR = "photos";
 }

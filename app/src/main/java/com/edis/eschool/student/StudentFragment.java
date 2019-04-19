@@ -13,14 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.edis.eschool.R;
-import com.edis.eschool.dummy.DummyContent.DummyItem;
 import com.edis.eschool.pojo.Student;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.edis.eschool.dummy.DummyContent.*;
 
 /**
  * A fragment representing a list of Items.
@@ -82,7 +79,7 @@ public class StudentFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            studentRecyclerViewAdapter = new StudentRecyclerViewAdapter(studentList, mListener);
+            studentRecyclerViewAdapter = new StudentRecyclerViewAdapter(context, studentList, mListener);
             recyclerView.setAdapter(studentRecyclerViewAdapter);
         }
         return view;

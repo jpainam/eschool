@@ -1,7 +1,11 @@
 package com.edis.eschool.student;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +15,9 @@ import com.edis.eschool.R;
 import com.edis.eschool.dummy.DummyContent.DummyItem;
 import com.edis.eschool.pojo.Student;
 import com.edis.eschool.utils.Constante;
+import com.facebook.drawee.view.SimpleDraweeView;
 
+import java.io.File;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -25,10 +31,11 @@ public class StudentRecyclerViewAdapter extends RecyclerView.Adapter<StudentRecy
 
     private final List<Student> mValues;
     private final StudentFragment.OnListFragmentInteractionListener mListener;
-
-    public StudentRecyclerViewAdapter(List<Student> items, StudentFragment.OnListFragmentInteractionListener listener) {
+    private Context context;
+    public StudentRecyclerViewAdapter(Context context, List<Student> items, StudentFragment.OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
+        this.context = context;
     }
 
     @Override
@@ -40,16 +47,27 @@ public class StudentRecyclerViewAdapter extends RecyclerView.Adapter<StudentRecy
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
+        Student st = mValues.get(position);
+        holder.mItem = st;
         holder.mStudentName.setText(mValues.get(position).getLastName());
-        if(mValues.get(position).getSexe() == Constante.MALE) {
-            holder.mIconView.setImageResource(R.drawable.male_avatar);
-        }else{
-            holder.mIconView.setImageResource(R.drawable.female_avatar);
+        if(st.getPhoto() == "" || st.getPhoto() == null){
+            if(st.equals(Constante.MALE)) {
+                holder.mIconView.setImageResource(R.drawable.male_avatar);
+            }else{
+                   holder.mIconView.setImageResource(R.drawable.female_avatar);
+            }
+        }else {
+
+            //ContextWrapper cw = new ContextWrapper(context);
+            //File directory = cw.getDir(Constante.IMG_DIR, Context.MODE_PRIVATE);
+            //File studentPhoto = new File(directory, st.getPhoto());
+            //Picasso.with(context).load(studentPhoto).into(holder.mIconView);
+            Uri uri = Uri.parse(st.getPhoto());
+            holder.mIconView.setImageURI(uri);
         }
         //holder.mStudentName.setText(mValues.get(position).id);
         holder.mStudentNotifs.setText((int)(Math.random()*10) + "");
-        holder.mStudentDescription.setText(mValues.get(position).getEtablissement());
+        holder.mStudentDescription.setText(st.getEtablissement());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,17 +88,18 @@ public class StudentRecyclerViewAdapter extends RecyclerView.Adapter<StudentRecy
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final CircleImageView mIconView;
+        public final SimpleDraweeView mIconView;
         public final TextView mStudentName;
         public final TextView mStudentDate;
         public final TextView mStudentNotifs;
         public final TextView mStudentDescription;
+
         public Student mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIconView = (CircleImageView) view.findViewById(R.id.student_icon);
+            mIconView = (SimpleDraweeView) view.findViewById(R.id.student_icon);
             mStudentName = (TextView) view.findViewById(R.id.student_name);
             mStudentDate = (TextView) view.findViewById(R.id.student_date);
             mStudentNotifs = (TextView) view.findViewById(R.id.student_notifs);

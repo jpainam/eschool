@@ -7,6 +7,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.edis.eschool.pojo.Student;
@@ -119,10 +121,26 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String sexe = item.getString("sex");
             String etablissement = item.getString("etablissement");
             String classe = item.getString("classe");
-            Student st = new Student(id, firstname, lastname, sexe,
+            String photo = item.getString("photo");
+            if(photo == "" || photo == null){
+                if(sexe.equals("M")){
+                    photo = Constante.MALE_AVATAR;
+                }else{
+                    photo = Constante.FEMALE_AVATAR;
+                }
+            }
+            final Student st = new Student(id, firstname, lastname, sexe,
                     classe, etablissement);
-            Log.i(TAG, st.toString());
+            final String path = Constante.SERVER +  "eschool" + "/" + Constante.IMG_DIR
+                    + "/" + photo;
+            Log.i(TAG, path);
+            st.setPhoto(path);
             dao.insert(st);
+            /**
+             * Download the student image
+             */
+
+            //String filename = path.substring(path.lastIndexOf("/")+  1);
         }
     }
 }

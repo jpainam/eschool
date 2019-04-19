@@ -93,6 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 StudentDao.COL_STUDENT_LASTNAME + " TEXT," +
                 StudentDao.COL_STUDENT_SEXE + " TEXT," +
                 StudentDao.COL_STUDENT_CLASSE + " TEXT," +
+                StudentDao.COL_STUDENT_PHOTO + " TEXT," +
                 StudentDao.COL_STUDENT_ETABLISSEMENT + " TEXT)");
 
         db.execSQL("create table " + UserDao.TABLE_USER + " (" + COL_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +

@@ -25,7 +25,7 @@ public class NotificationDao {
         databaseHelper = DatabaseHelper.getInstance(context);
     }
 
-    public Notifications isertNotification(String  titre, String message, int imagenotification, String typenotification, String datenotification, int notificationlue) {
+    public Notifications insert(String  titre, String message, int imagenotification, String typenotification, String datenotification, int notificationlue) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(TITRENOTIFICATION, titre);

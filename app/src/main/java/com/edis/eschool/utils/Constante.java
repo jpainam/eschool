@@ -20,4 +20,6 @@ public class Constante {
     public static final String FEMALE = "F";
 
     public static final String SHARED_PREFERENCE_FILE = "shared_preferences";
+
+    public static final int PHONE_NUMBER_LENGTH = 8;
 }

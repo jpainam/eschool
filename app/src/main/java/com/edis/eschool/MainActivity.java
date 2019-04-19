@@ -54,12 +54,11 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
          */
         SharedPreferences pref = getApplicationContext().getSharedPreferences(
                 getString(R.string.shared_preference_file), Context.MODE_PRIVATE);
-        int visite = pref.getInt(getString(R.string.visite), 0);
-        if(visite == 0){
+
+        if(!pref.contains(getString(R.string.visite))){
             // TODO : Open the tuto page
         }
-        String phone_number = pref.getString(getString(R.string.phone_number), null);
-        if(phone_number == null){
+        if(!pref.contains(getString(R.string.phone_number))){
             // User not authenticated
             Log.i(TAG, "Start Login Activity - First time run");
             startLoginActivity();
@@ -67,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
         databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
         Log.i(TAG,"Getting database Instance");
         mAccount = CreateSyncAccount(this);
+        manualSynch();
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -117,6 +117,21 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
             Log.i(TAG, "Account already exists");
             return newAccount;
         }
+    }
+
+    private void manualSynch(){
+        /** Pass the settings flags by inserting them in a bundle */
+        Bundle settingsBundle = new Bundle();
+        settingsBundle.putBoolean(
+                ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        settingsBundle.putBoolean(
+                ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        /*
+         * Request the sync for the default account, authority, and
+         * manual sync settings
+         */
+        ContentResolver.requestSync(mAccount, Constante.AUTHORITY, settingsBundle);
+        Log.i(TAG, "Manual Sync Finish");
     }
 
     private void startLoginActivity(){

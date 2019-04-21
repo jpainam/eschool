@@ -58,8 +58,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         editor.putString(getString(R.string.firebase_token), refreshedToken);
         editor.apply();
         Log.i(TAG, "End of new token commit");
+        if (pref.contains(getString(R.string.phone_number))){
+            sendRegistrationToServer(refreshedToken);
+        }
     }
 
+    private void sendRegistrationToServer(String token){
+        // TODO send new token to server
+    }
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         this.context = this;

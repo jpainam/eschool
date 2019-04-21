@@ -40,4 +40,6 @@
     <string name="visite">com.edis.visite</string>
     <string name="firebase_token">com.edis.firebase_token</string>
     <string name="phone_number">com.edis.phone_number</string>
+    <string name="refresh_list_broadcast">com.edis.eschool.REFRESH_LIST</string>
+    <string name="last_time_sync">last_time_sync</string>
 </resources>

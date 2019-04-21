@@ -1,6 +1,5 @@
 package com.edis.eschool;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;

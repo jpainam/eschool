@@ -5,12 +5,16 @@ import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.edis.eschool.R;
 import com.edis.eschool.pojo.Student;
 import com.edis.eschool.student.StudentDao;
 import com.edis.eschool.utils.Constante;
@@ -20,6 +24,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -64,12 +70,35 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          * Get the last sync time used in the database to return all data
          * create after last sync time. Fetch from the local database
          */
-        String lastSyncTime = "2014-12-12";
-        String url = Constante.SERVER_PATH + "sync.php?lastSyncTime=" + lastSyncTime;
+        SharedPreferences pref = getContext().getSharedPreferences(
+                getContext().getString(R.string.shared_preference_file),
+                Context.MODE_PRIVATE);
+        String phone_number = pref.getString(
+                getContext().getString(R.string.phone_number), null);
+        String lastSyncTime = pref.getString(
+                getContext().getString(R.string.last_time_sync), null);
+        String mToken = pref.getString(
+                getContext().getString(R.string.firebase_token), null);
+        String url = Constante.SERVER_PATH + "sync.php?phone_number=" +
+                phone_number + "&last_time_sync=" + lastSyncTime + "&token=" + mToken;
         Log.i(TAG, "Last time Sync " + lastSyncTime + " from " + url);
         String jsonData = donwloadData(url);
         updateLocalDatabase(jsonData);
         Log.i(TAG, "Streaming completed");
+        /**
+         * Send a broadcast to update list view
+         */
+        Intent intent = new Intent();
+        intent.setAction(getContext().getString(R.string.refresh_list_broadcast));
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+        /**
+         * Update last time sync
+         */
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentTime = sdf.format(new Date());
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(getContext().getString(R.string.last_time_sync), currentTime);
+        editor.apply();
     }
 
     public String donwloadData(String url) {
@@ -110,11 +139,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void syncStudent(JSONArray data) throws JSONException {
-
+        StudentDao dao = new StudentDao(getContext());
+        if(data.length() > 0){
+            dao.emptyTable();
+        }
         for (int i = 0; i < data.length(); i++) {
             Log.i(TAG, "Syncing Student");
             JSONObject item = data.getJSONObject(i);
-            StudentDao dao = new StudentDao(getContext());
             int id = Integer.parseInt(item.getString("id"));
             String firstname = item.getString("firstname");
             String lastname = item.getString("lastname");

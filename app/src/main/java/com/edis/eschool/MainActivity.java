@@ -56,29 +56,35 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
         SharedPreferences pref = getApplicationContext().getSharedPreferences(
                 getString(R.string.shared_preference_file), Context.MODE_PRIVATE);
 
-        if (!pref.contains(getString(R.string.visite))) {
+        //if (!pref.contains(getString(R.string.visite))) {
             // TODO : Open the tuto page
-        }
+        //}else
         if (!pref.contains(getString(R.string.phone_number))) {
             // User not authenticated
             Log.i(TAG, "Start Login Activity - First time run");
             startLoginActivity();
+        }else {
+
+            databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
+            Log.i(TAG, "Getting database Instance");
+            /**
+             * First run, force manual sync
+             */
+            //if (!pref.contains(getString(R.string.last_time_sync))) {
+                mAccount = CreateSyncAccount(this);
+                manualSynch();
+            //}
+            setContentView(R.layout.activity_main);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+
+            BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+            navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+            fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
+            fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
+            fm.beginTransaction().add(R.id.main_container, fragment1, "1").commit();
         }
-        databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
-        Log.i(TAG, "Getting database Instance");
-        mAccount = CreateSyncAccount(this);
-        manualSynch();
-        setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-        fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
-        fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
-        fm.beginTransaction().add(R.id.main_container, fragment1, "1").commit();
 
     }
 
@@ -107,7 +113,11 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
              * then call context.setIsSyncable(account, AUTHORITY, 1)
              * here.
              */
-            ContentResolver.setIsSyncable(newAccount, Constante.AUTHORITY, 1);
+            if(ContentResolver.getIsSyncable(newAccount, Constante.AUTHORITY) == 0) {
+                ContentResolver.setIsSyncable(newAccount, Constante.AUTHORITY, 1);
+            }
+            ContentResolver.setSyncAutomatically(newAccount,
+                    Constante.AUTHORITY, true);
             Log.i(TAG,
                     "Account " + Constante.ACCOUNT + " " + Constante.ACCOUNT_TYPE + " created");
             return newAccount;

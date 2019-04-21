@@ -97,4 +97,9 @@ public class StudentDao {
         db.endTransaction();
         return false;
     }
+
+    public void emptyTable() {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        db.delete(TABLE_STUDENT, "1=1", null);
+    }
 }

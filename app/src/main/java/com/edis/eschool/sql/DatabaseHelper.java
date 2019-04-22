@@ -82,7 +82,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 " (" + NotificationDao.IDNOTIFICATION + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 NotificationDao.TITRENOTIFICATION + " TEXT," +
                 NotificationDao.MESSAGENOTIFICATION + " TEXT," +
-                NotificationDao.IMAGENOTIFICATION + " INTEGER," +
                 NotificationDao.TYPENOTIFICATION + " TEXT," +
                 NotificationDao.DATENOTIFICATION + " TEXT," +
                 NotificationDao.NOTIFICATIONLU + " INTEGER)");

@@ -14,23 +14,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 
+import com.edis.eschool.notification.ListeNotifications;
 import com.edis.eschool.pojo.Student;
-import com.edis.eschool.pojo.User;
 import com.edis.eschool.sql.DatabaseHelper;
-import com.edis.eschool.user.UserDao;
 import com.edis.eschool.utils.Constante;
-import com.edis.eschool.dummy.DummyContent;
 import com.edis.eschool.student.StudentFragment;
 import com.facebook.drawee.backends.pipeline.Fresco;
-
-import java.io.IOException;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 
 public class MainActivity extends AppCompatActivity implements StudentFragment.OnListFragmentInteractionListener {
@@ -49,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fresco.initialize(this);
         /**
          * If first run, manually sync the local database with the remote database
          */
@@ -64,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
             Log.i(TAG, "Start Login Activity - First time run");
             startLoginActivity();
         }else {
-
+            Fresco.initialize(this);
             databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
             Log.i(TAG, "Getting database Instance");
             /**
@@ -177,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
         }
     };
 
-
+    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -195,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
 
         return super.onOptionsItemSelected(item);
     }
-
+    */
 
     @Override
     public void onListFragmentInteraction(Student item) {

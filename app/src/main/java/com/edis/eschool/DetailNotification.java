@@ -39,13 +39,13 @@ public class DetailNotification extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        overridePendingTransition(android.R.anim.slide_out_right ,android.R.anim.slide_in_left);//transition simple
+        //overridePendingTransition(android.R.anim.slide_out_right ,android.R.anim.slide_in_left);//transition simple
         finish();
       }
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
-                overridePendingTransition(android.R.anim.slide_out_right ,android.R.anim.slide_in_left);//transition simple
+                //overridePendingTransition(android.R.anim.slide_out_right ,android.R.anim.slide_in_left);//transition simple
                 finish();
                 break;
          }

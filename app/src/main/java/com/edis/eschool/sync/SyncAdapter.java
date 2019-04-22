@@ -18,6 +18,10 @@ import com.edis.eschool.R;
 import com.edis.eschool.pojo.Student;
 import com.edis.eschool.student.StudentDao;
 import com.edis.eschool.utils.Constante;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,6 +30,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Executor;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -79,6 +84,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 getContext().getString(R.string.last_time_sync), null);
         String mToken = pref.getString(
                 getContext().getString(R.string.firebase_token), null);
+        if (mToken == null) {
+            mToken = askFirebaseToken();
+        }
         String url = Constante.SERVER_PATH + "sync.php?phone_number=" +
                 phone_number + "&last_time_sync=" + lastSyncTime + "&token=" + mToken;
         Log.i(TAG, "Last time Sync " + lastSyncTime + " from " + url);
@@ -100,6 +108,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         editor.putString(getContext().getString(R.string.last_time_sync), currentTime);
         editor.apply();
     }
+
+    private String askFirebaseToken() {
+        Log.w(TAG, "Asking a Token Again");
+        FirebaseApp.initializeApp(getContext());
+        InstanceIdResult rst = FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(
+                new OnSuccessListener<InstanceIdResult>() {
+                    @Override
+                    public void onSuccess(InstanceIdResult instanceIdResult) {
+                        final String newToken = instanceIdResult.getToken();
+                        SharedPreferences pref = getContext().getSharedPreferences(
+                                getContext().getString(R.string.shared_preference_file), Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.putString(getContext().getString(R.string.firebase_token), newToken);
+                        editor.apply();
+                    }
+                }).getResult();
+        String newToken = rst.getToken();
+        Log.w(TAG, newToken);
+        return newToken;
+    }
+
 
     public String donwloadData(String url) {
         OkHttpClient client = new OkHttpClient();
@@ -125,7 +154,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     JSONObject data = new JSONObject(jsonData);
                     boolean success = data.getBoolean("success");
-                    if(success) {
+                    if (success) {
                         Log.i(TAG, "Updating Local Database");
                         JSONArray studentData = data.getJSONArray("students");
                         syncStudent(studentData);
@@ -140,7 +169,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void syncStudent(JSONArray data) throws JSONException {
         StudentDao dao = new StudentDao(getContext());
-        if(data.length() > 0){
+        if (data.length() > 0) {
             dao.emptyTable();
         }
         for (int i = 0; i < data.length(); i++) {
@@ -153,16 +182,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String etablissement = item.getString("etablissement");
             String classe = item.getString("classe");
             String photo = item.getString("photo");
-            if(photo == "" || photo == null){
-                if(sexe.equals("M")){
+            if (photo == "" || photo == null) {
+                if (sexe.equals("M")) {
                     photo = Constante.MALE_AVATAR;
-                }else{
+                } else {
                     photo = Constante.FEMALE_AVATAR;
                 }
             }
             final Student st = new Student(id, firstname, lastname, sexe,
                     classe, etablissement);
-            final String path = Constante.SERVER +  "eschool" + "/" + Constante.IMG_DIR
+            final String path = Constante.SERVER + "eschool" + "/" + Constante.IMG_DIR
                     + "/" + photo;
             Log.i(TAG, path);
             st.setPhoto(path);

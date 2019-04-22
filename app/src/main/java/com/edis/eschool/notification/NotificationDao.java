@@ -11,11 +11,9 @@ import com.edis.eschool.user.UserDao;
 
 public class NotificationDao {
     public static final String TABLE_NOTIFICATION = "notification";
-
     public static final String IDNOTIFICATION = "IDNOTIFICATION";
     public static final String TITRENOTIFICATION = "TITRENOTIFICATION";
     public static final String MESSAGENOTIFICATION = "MESSAGENOTIFICATION";
-    public static final String IMAGENOTIFICATION = "IMAGENOTIFICATION";
     public static final String TYPENOTIFICATION = "TYPENOTIFICATION";
     public static final String DATENOTIFICATION = "DATENOTIFICATION";
     public static final String NOTIFICATIONLU = "NOTIFICATIONLU";
@@ -25,12 +23,11 @@ public class NotificationDao {
         databaseHelper = DatabaseHelper.getInstance(context);
     }
 
-    public Notifications insert(String  titre, String message, int imagenotification, String typenotification, String datenotification, int notificationlue) {
+    public Notifications insert(String  titre, String message, String typenotification, String datenotification, int notificationlue) {
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(TITRENOTIFICATION, titre);
         contentValues.put(MESSAGENOTIFICATION, message);
-        contentValues.put(IMAGENOTIFICATION, imagenotification);
         contentValues.put(TYPENOTIFICATION, typenotification);
         contentValues.put(DATENOTIFICATION, datenotification);
         contentValues.put(NOTIFICATIONLU, notificationlue);
@@ -46,13 +43,11 @@ public class NotificationDao {
         Cursor res = db.rawQuery("select * from " + TABLE_NOTIFICATION + " where " + IDNOTIFICATION + "='" + id + "'", null);
         Notifications notifications=new Notifications();
         while (res.moveToNext()) {
-            notifications.setIdnotification(res.getInt(0));
             notifications.setTitre(res.getString(1));
             notifications.setMessage(res.getString(2));
-            notifications.setImage(res.getInt(3));
-            notifications.setType(res.getString(4));
-            notifications.setDate(res.getString(5));
-            notifications.setLu(res.getInt(6));
+            notifications.setType(res.getString(3));
+            notifications.setDate(res.getString(4));
+            notifications.setLu(res.getInt(5));
         }
         return notifications;
     }

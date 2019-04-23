@@ -21,6 +21,7 @@ import com.edis.eschool.pojo.Notifications;
 import com.edis.eschool.sql.DatabaseHelper;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -30,7 +31,7 @@ public class NotificationsAdapteur extends RecyclerView.Adapter<RecyclerView.Vie
     private List<Notifications> mData= new ArrayList<>();
     private List<Notifications> mDataSeach= new ArrayList<>();
     private List<Notifications> mDataSave= new ArrayList<>();// table qui permet la sauvegarde des donnée l
-
+    private static final int DELEITEM=104;
     public NotificationsAdapteur(Context mContext) {
         this.mContext = mContext;
 
@@ -82,10 +83,11 @@ public class NotificationsAdapteur extends RecyclerView.Adapter<RecyclerView.Vie
                 public void onClick(View v) {
                     updatecheck(mData.get(position),((TextViewHolder)holder));
                     Intent detailNotifi= new Intent(mContext, DetailNotification.class);
-                    detailNotifi.putExtra("notifications",mData.get(position));
-                    mContext.startActivity(detailNotifi);
-                    //((Activity)mContext).overridePendingTransition(android.R.anim.slide_in_left,android.R.anim.slide_out_right);//transition simple
-                  //  ((Activity)mContext).finish();
+                     detailNotifi.putExtra("notifications",mData.get(position));
+                    ((Activity) mContext).startActivityForResult(detailNotifi,DELEITEM);
+                   // mContext.startActivity(detailNotifi);
+                    ((Activity)mContext).overridePendingTransition(android.R.anim.slide_in_left,android.R.anim.slide_out_right);//transition simple
+                  // ((Activity)mContext).finish();
                 }
             });
 
@@ -116,6 +118,25 @@ public class NotificationsAdapteur extends RecyclerView.Adapter<RecyclerView.Vie
         NotificationDao dao = new NotificationDao(mContext);
         dao.deleteNotifiction(mData.get(position).getIdnotification());
         mData.remove(position);
+        notifyDataSetChanged();
+    }
+    public void removeNotifications(Notifications notifications) {
+        NotificationDao dao = new NotificationDao(mContext);
+        dao.deleteNotifiction(notifications.getIdnotification());
+        ///////////////////////////////////////////////
+        Iterator<Notifications> it = mData.iterator();
+        while (it.hasNext()) {
+            Notifications notification = it.next();
+            if (notification.getIdnotification()==notifications.getIdnotification()) {
+                it.remove();
+            }
+        }
+
+        //////////////
+
+
+
+        mData.remove(notifications);
         notifyDataSetChanged();
     }
     public boolean existe(Notifications notification ,List<Notifications> liste){

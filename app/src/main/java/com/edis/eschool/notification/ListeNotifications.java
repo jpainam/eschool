@@ -32,6 +32,8 @@ import com.edis.eschool.R;
 
 import com.edis.eschool.pojo.Notifications;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
 
 
 public class ListeNotifications extends Fragment {
@@ -44,6 +46,7 @@ public class ListeNotifications extends Fragment {
     private final String ACTION_RECEIVE_NOTIFICATION = "com.edis.eschool_TARGET_NOTIFICATION";
     private SearchView searchView = null;
     private SearchView.OnQueryTextListener queryTextListener;
+    private static final int DELEITEM=104;
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -263,5 +266,12 @@ public class ListeNotifications extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==DELEITEM&&resultCode==RESULT_OK){
+            Notifications notif=(Notifications)data.getSerializableExtra("notifi");
+            myAdapter.removeNotifications(notif);
+        }
+    }
 }

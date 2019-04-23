@@ -19,7 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".InnerMenuActivity" android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".InnerMenuActivity"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"></activity>
 
         <service android:name=".sync.AuthenticatorService">
             <intent-filter>
@@ -52,13 +54,16 @@
 
         <activity
             android:name=".LoginActivity"
+            android:screenOrientation="portrait"
             android:label="Login" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".SettingsActivity" android:screenOrientation="portrait"
             android:label="Settings" />
-        <activity android:name=".DetailNotification" />
+        <activity android:name=".DetailNotification"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

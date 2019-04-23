@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
     final Fragment fragment3 = new ListeNotifications();
     final FragmentManager fm = getSupportFragmentManager();
     Fragment active = fragment1;
+    public int active_fragment = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +61,10 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
             /**
              * First run, force manual sync
              */
-            //if (!pref.contains(getString(R.string.last_time_sync))) {
+            if (!pref.contains(getString(R.string.last_time_sync))) {
                 mAccount = CreateSyncAccount(this);
                 manualSynch();
-            //}
+            }
             setContentView(R.layout.activity_main);
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
@@ -107,7 +108,9 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
                 ContentResolver.setIsSyncable(newAccount, Constante.AUTHORITY, 1);
             }
             ContentResolver.setSyncAutomatically(newAccount,
-                    Constante.AUTHORITY, true);
+                    Constante.AUTHORITY, false);
+            ContentResolver.addPeriodicSync(newAccount, Constante.AUTHORITY,
+                    new Bundle(), 86400 ); // 24hours = 86 400 seconds
             Log.i(TAG,
                     "Account " + Constante.ACCOUNT + " " + Constante.ACCOUNT_TYPE + " created");
             return newAccount;
@@ -151,23 +154,49 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
                 case R.id.navigation_home:
                     fm.beginTransaction().hide(active).show(fragment1).commit();
                     active = fragment1;
+                    active_fragment = 1;
                     return true;
 
                 case R.id.navigation_dashboard:
                     fm.beginTransaction().hide(active).show(fragment2).commit();
                     active = fragment2;
+                    active_fragment = 2;
                     return true;
 
                 case R.id.navigation_notifications:
                     fm.beginTransaction().hide(active).show(fragment3).commit();
                     active = fragment3;
+                    active_fragment = 3;
                     return true;
             }
             return false;
         }
     };
 
-    /*
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("active_fragment", active_fragment);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        active_fragment = savedInstanceState.getInt("active_fragment");
+        if(active_fragment == 2){
+            active = fragment2;
+        }else if(active_fragment == 3){
+            active = fragment3;
+        }else{
+            active = fragment1;
+        }
+        fm.beginTransaction().replace(R.id.main_container, active).commit();
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        active.onActivityResult(requestCode, resultCode, data);
+    }
+/*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);

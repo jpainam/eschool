@@ -1,7 +1,7 @@
 package com.edis.eschool;
 
 
-
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -32,7 +32,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -222,13 +221,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         mBuilder = new NotificationCompat.Builder(this);
-        mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+        mBuilder.setSmallIcon(R.drawable.common_full_open_on_phone);
         mBuilder.setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(false)
                 .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                 .setSmallIcon(R.drawable.common_full_open_on_phone)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setContentIntent(resultPendingIntent);
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

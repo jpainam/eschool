@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -27,7 +29,10 @@ import android.widget.TextView;
 
 import com.edis.eschool.R;
 import com.edis.eschool.pojo.Student;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +54,7 @@ public class StudentFragment extends Fragment {
 
     RecyclerView recyclerView;
     public List<Student> studentList = new ArrayList<>();
+    public String studentListJson = new String();
     public StudentRecyclerViewAdapter studentRecyclerViewAdapter;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -71,9 +77,15 @@ public class StudentFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setRetainInstance(true);
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+        }
+        if(savedInstanceState != null){
+            studentListJson = savedInstanceState.getString("studentList");
+            Type type = new TypeToken<List<Student>>(){}.getType();
+            studentList = new Gson().fromJson(studentListJson, type);
+            studentRecyclerViewAdapter.notifyDataSetChanged();
         }
     }
 
@@ -98,12 +110,21 @@ public class StudentFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(studentList.isEmpty()){
+            initStudentListView();
+        }
+    }
+
     public void initStudentListView(){
         Log.i(TAG, "Running initStudentListView");
         studentList.clear();
         AsyncTask<URL, Integer, List<Student>> asyncTask = new AsyncTask<URL, Integer, List<Student>>() {
             @Override
             protected List<Student> doInBackground(URL... urls) {
+                showProgress(true);
                 StudentDao dao = new StudentDao(getContext());
                 return dao.getStudentList();
             }
@@ -112,9 +133,13 @@ public class StudentFragment extends Fragment {
             protected void onPostExecute(List<Student> students) {
                 studentList.addAll(students);
                 studentRecyclerViewAdapter.notifyDataSetChanged();
+                showProgress(false);
+                Gson gson = new Gson();
+                studentListJson = gson.toJson(studentList);
             }
         };
         asyncTask.execute();
+
         Log.i(TAG, "End InitStudentListView");
     }
     private BroadcastReceiver myReceiver = new BroadcastReceiver() {
@@ -124,7 +149,6 @@ public class StudentFragment extends Fragment {
             if (getString(R.string.refresh_list_broadcast).equals(sAction) ) {
                 // update the ListView here
                 initStudentListView();
-                showProgress(false);
             }
         }
     };
@@ -144,7 +168,6 @@ public class StudentFragment extends Fragment {
         IntentFilter myFilter = new IntentFilter();
         myFilter.addAction(getString(R.string.refresh_list_broadcast));
         LocalBroadcastManager.getInstance(context).registerReceiver(myReceiver, myFilter);
-        showProgress(true);
     }
 
 
@@ -156,6 +179,13 @@ public class StudentFragment extends Fragment {
         /* unregister the */
 
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(myReceiver);
+    }
+
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("studentList", studentListJson);
     }
 
     public void showProgress(final boolean show) {

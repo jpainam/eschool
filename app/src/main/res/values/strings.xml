@@ -1,3 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE resources [
+    <!ENTITY remote_base_url "https://www.uacosendai-edu.net/eschool/">
+    ]>
 <resources>
     <string name="app_name">Edis E-School</string>
     <string name="title_home">Home</string>
@@ -31,7 +35,7 @@
         Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment
         Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment Fragment
     </string>
-
+    <string name="menu_refresh">Rafraichir</string>
     <string name="date">12:01:2019</string>
     <string name="title">titre</string>
     <string name="authority">com.edis.eschool.datasync.provider</string>
@@ -42,4 +46,18 @@
     <string name="phone_number">com.edis.phone_number</string>
     <string name="refresh_list_broadcast">com.edis.eschool.REFRESH_LIST</string>
     <string name="last_time_sync">last_time_sync</string>
+    <string name="loading_message">Loading...</string>
+    <string name="SYNC_STATUS_ACTION">com.edis.eschool.SYNC_STATUS_ACTION</string>
+    <string name="sync_status">sync_status</string>
+    <string name="sync_running">sync_running</string>
+    <string name="sync_finished">sync_finished</string>
+
+    <!-- URL -->
+    <string name="remote_base_url">&remote_base_url;</string>
+    <string name="update_token_url">&remote_base_url;update_token.php</string>
+    <string name="login_url">&remote_base_url;login.php</string>
+    <string name="sync_url">&remote_base_url;sync.php</string>
+    <string name="refreshed_message">La liste a été rafraichie</string>
+
+
 </resources>

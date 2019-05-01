@@ -1,7 +1,11 @@
 package com.edis.eschool.student;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,13 +16,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
+
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -26,9 +34,11 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.edis.eschool.R;
 import com.edis.eschool.pojo.Student;
+import com.edis.eschool.utils.Constante;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -36,6 +46,8 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import dmax.dialog.SpotsDialog;
 
 /**
  * A fragment representing a list of Items.
@@ -56,6 +68,8 @@ public class StudentFragment extends Fragment {
     public List<Student> studentList = new ArrayList<>();
     public String studentListJson = new String();
     public StudentRecyclerViewAdapter studentRecyclerViewAdapter;
+    SwipeRefreshLayout swipeRefreshLayout;
+    boolean swipeEnabled = false;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -78,14 +92,22 @@ public class StudentFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
-        if(savedInstanceState != null){
-            studentListJson = savedInstanceState.getString("studentList");
-            Type type = new TypeToken<List<Student>>(){}.getType();
-            studentList = new Gson().fromJson(studentListJson, type);
-            studentRecyclerViewAdapter.notifyDataSetChanged();
+        //if(savedInstanceState != null){
+        //    studentListJson = savedInstanceState.getString("studentList");
+         //   Type type = new TypeToken<List<Student>>(){}.getType();
+        //    studentList = new Gson().fromJson(studentListJson, type);
+        //    studentRecyclerViewAdapter.notifyDataSetChanged();
+       // }
+        if(dialog == null) {
+            Log.e(TAG, "Instantiate dialog");
+            dialog = new SpotsDialog.Builder()
+                    .setContext(getContext()).setCancelable(true)
+                    .setMessage(getString(R.string.loading_message))
+                    .build();
         }
     }
 
@@ -95,9 +117,10 @@ public class StudentFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_student_list, container, false);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            recyclerView = (RecyclerView) view;
+        if (view instanceof SwipeRefreshLayout) {
+            final Context context = view.getContext();
+            swipeRefreshLayout = (SwipeRefreshLayout)view;
+            recyclerView = view.findViewById(R.id.recyclerView);
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
@@ -106,8 +129,36 @@ public class StudentFragment extends Fragment {
             studentRecyclerViewAdapter = new StudentRecyclerViewAdapter(context,
                     studentList, mListener);
             recyclerView.setAdapter(studentRecyclerViewAdapter);
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    swipeEnabled = true;
+                    doManualSyncAsync();
+                }
+            });
+            // Configure the refreshing colors
+            swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                    android.R.color.holo_green_light,
+                    android.R.color.holo_orange_light,
+                    android.R.color.holo_red_light);
+
         }
         return view;
+    }
+    public void doManualSyncAsync(){
+        AccountManager accManager = AccountManager.get(getContext());
+        Account account = accManager.getAccountsByType(Constante.ACCOUNT_TYPE)[0];
+        if(account != null) {
+            Bundle settingsBundle = new Bundle();
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_MANUAL, true);
+            settingsBundle.putBoolean(
+                    ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+            settingsBundle.putBoolean(getString(R.string.SYNC_STATUS_ACTION), false);
+            Log.i(TAG, "Start Sync Finish");
+            ContentResolver.requestSync(account, Constante.AUTHORITY, settingsBundle);
+            Log.i(TAG, "Manual Sync Finish");
+        }
     }
 
     @Override
@@ -124,18 +175,25 @@ public class StudentFragment extends Fragment {
         AsyncTask<URL, Integer, List<Student>> asyncTask = new AsyncTask<URL, Integer, List<Student>>() {
             @Override
             protected List<Student> doInBackground(URL... urls) {
-                showProgress(true);
                 StudentDao dao = new StudentDao(getContext());
                 return dao.getStudentList();
+            }
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                Log.e(TAG, "Running Dialog");
+                dialog.show();
             }
 
             @Override
             protected void onPostExecute(List<Student> students) {
                 studentList.addAll(students);
                 studentRecyclerViewAdapter.notifyDataSetChanged();
-                showProgress(false);
                 Gson gson = new Gson();
                 studentListJson = gson.toJson(studentList);
+                dialog.dismiss();
+                Log.e(TAG, "Dismiss the dialog");
             }
         };
         asyncTask.execute();
@@ -149,6 +207,24 @@ public class StudentFragment extends Fragment {
             if (getString(R.string.refresh_list_broadcast).equals(sAction) ) {
                 // update the ListView here
                 initStudentListView();
+            }else if(sAction.equals(getString(R.string.SYNC_STATUS_ACTION))){
+                String status = intent.getExtras().getString(getString(R.string.sync_status));
+                Log.e(TAG, "status " + status);
+                if(status.equals(getString(R.string.sync_running))){
+                    Log.i(TAG, "Progress Bar Running");
+                    if(!swipeEnabled){
+                        dialog.show();
+                    }
+                }else if(status.equals(getString(R.string.sync_finished))){
+                    Log.i(TAG, "Progress Bar Finished");
+                    if(swipeEnabled){
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(context, getString(R.string.refreshed_message), Toast.LENGTH_SHORT).show();
+                        swipeEnabled = false;
+                    }else {
+                        dialog.dismiss();
+                    }
+                }
             }
         }
     };
@@ -167,17 +243,42 @@ public class StudentFragment extends Fragment {
          */
         IntentFilter myFilter = new IntentFilter();
         myFilter.addAction(getString(R.string.refresh_list_broadcast));
+        myFilter.addAction(getString(R.string.SYNC_STATUS_ACTION));
         LocalBroadcastManager.getInstance(context).registerReceiver(myReceiver, myFilter);
     }
 
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.home_menu, menu);
+        MenuItem refreshmenu = menu.findItem(R.id.refresh_menu_item);
+        //refreshmenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+         //   @Override
+         //   public boolean onMenuItemClick(MenuItem item) {
+        //
+         //       return false;
+         //   }
+        //});
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case  R.id.refresh_menu_item:
+                Log.i(TAG, "Refresh Menu Clicked");
+                return false;
+                default:
+                    break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
         /* unregister the */
-
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(myReceiver);
     }
 
@@ -186,57 +287,6 @@ public class StudentFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("studentList", studentListJson);
-    }
-
-    public void showProgress(final boolean show) {
-        if(dialog == null) {
-            int llPadding = 10;
-            LinearLayout ll = new LinearLayout(getContext());
-            ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.setPadding(llPadding, llPadding, llPadding, llPadding);
-            ll.setGravity(Gravity.CENTER);
-            LinearLayout.LayoutParams llParam = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            llParam.gravity = Gravity.CENTER;
-            ll.setLayoutParams(llParam);
-
-            ProgressBar progressBar = new ProgressBar(getContext());
-            progressBar.setIndeterminate(true);
-            progressBar.setPadding(0, 0, llPadding, 0);
-            progressBar.setLayoutParams(llParam);
-
-            llParam = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            llParam.gravity = Gravity.CENTER;
-            TextView tvText = new TextView(getContext());
-            tvText.setText("Loading ...");
-            tvText.setTextColor(Color.parseColor("#000000"));
-            tvText.setTextSize(20);
-            tvText.setLayoutParams(llParam);
-
-            ll.addView(progressBar);
-            ll.addView(tvText);
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setCancelable(true);
-            builder.setView(ll);
-
-            dialog = builder.create();
-        }
-        if(show) {
-            dialog.show();
-            Window window = dialog.getWindow();
-            if (window != null) {
-                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-                layoutParams.copyFrom(dialog.getWindow().getAttributes());
-                layoutParams.width = LinearLayout.LayoutParams.WRAP_CONTENT;
-                layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                dialog.getWindow().setAttributes(layoutParams);
-            }
-        }else{
-            dialog.dismiss();
-        }
     }
     /**
      * This interface must be implemented by activities that contain this

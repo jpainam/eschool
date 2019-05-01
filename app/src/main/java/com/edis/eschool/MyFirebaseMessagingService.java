@@ -73,30 +73,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.i(TAG, "End of new token commit");
         if (pref.contains(getString(R.string.phone_number))){
             sendRegistrationToServer(refreshedToken, pref.getString(
-                    getString(R.string.phone_number), null));
+                    getString(R.string.phone_number), ""));
         }
     }
 
     private void sendRegistrationToServer(String token, String phone_number){
-        if(token == null){
-            Log.w(TAG, "Ask for a new Token");
-            FirebaseApp.initializeApp(this);
-            InstanceIdResult iit = FirebaseInstanceId.getInstance().getInstanceId().
-                    addOnSuccessListener( new OnSuccessListener<InstanceIdResult>() {
-                @Override
-                public void onSuccess(InstanceIdResult instanceIdResult) {
-                    final String newToken = instanceIdResult.getToken();
-                    // update pref
-                    SharedPreferences pref = getApplicationContext().getSharedPreferences(
-                            getString(R.string.shared_preference_file), Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = pref.edit();
-                    editor.putString(getString(R.string.firebase_token), newToken);
-                    editor.apply();
-                }
-            }).getResult();
-            token = iit.getToken();
-        }
-        Log.i(TAG, token);
+        Log.i(TAG, "Send Token to Server " + token);
         AsyncTask<String, Void, Boolean> asyncTask = new AsyncTask<String, Void, Boolean>() {
             @Override
             protected Boolean doInBackground(String... params) {
@@ -108,7 +90,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 if(params.length > 1 && params[1] != null) {
                     phone = params[1];
                 }
-                String url = Constante.SERVER_PATH + "update_token.php";
+                String url = getString(R.string.update_token_url);
                 OkHttpClient client =new OkHttpClient();
                 Log.e(TAG, url);
                 RequestBody body =new FormBody.Builder()

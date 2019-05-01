@@ -4,7 +4,7 @@ public class Constante {
     public static final String SERVER = "https://www.uacosendai-edu.net/";
     public static final String DBNAME = "eschool/";
 
-    public static String SERVER_PATH = SERVER + DBNAME;
+    //public static String SERVER_PATH = SERVER + DBNAME;
 
     // The authority for the sync adapter's content provider
     /**

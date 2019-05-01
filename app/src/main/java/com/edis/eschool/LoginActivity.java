@@ -3,6 +3,7 @@ package com.edis.eschool;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.AsyncTask;
@@ -18,6 +19,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.edis.eschool.utils.Constante;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.io.IOException;
 
@@ -123,7 +130,7 @@ public class LoginActivity extends AppCompatActivity{
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
+            //showProgress(true);
             mAuthTask = new UserLoginTask(phone_number, password);
             mAuthTask.execute((Void) null);
         }
@@ -148,7 +155,7 @@ public class LoginActivity extends AppCompatActivity{
 
         private final String mEmail;
         private final String mPassword;
-        private final String mToken;
+        private String mToken;
         private SharedPreferences pref;
 
         UserLoginTask(String email, String password) {
@@ -162,7 +169,7 @@ public class LoginActivity extends AppCompatActivity{
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-            String url = Constante.SERVER_PATH + "login.php";
+            String url = getString(R.string.login_url);
             OkHttpClient client =new OkHttpClient();
             Log.e(TAG, url);
             Log.i(TAG, mEmail + " " + mPassword);
@@ -204,7 +211,7 @@ public class LoginActivity extends AppCompatActivity{
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            showProgress(false);
+            //showProgress(false);
 
             if (success) {
                 Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);

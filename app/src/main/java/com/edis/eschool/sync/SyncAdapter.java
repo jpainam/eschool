@@ -1,6 +1,7 @@
 package com.edis.eschool.sync;
 
 import android.accounts.Account;
+import android.app.AlertDialog;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -32,13 +33,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Executor;
 
+import dmax.dialog.SpotsDialog;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String TAG = "SyncAdapter";
-
+    AlertDialog dialog = null;
     ContentResolver contentResolver;
 
 
@@ -50,6 +54,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          * from the incoming Context
          */
         contentResolver = context.getContentResolver();
+        dialog = new SpotsDialog.Builder()
+                .setContext(getContext()).setCancelable(true)
+                .setMessage(getContext().getString(R.string.loading_message))
+                .build();
     }
 
     /**
@@ -65,75 +73,70 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
          * from the incoming Context
          */
         contentResolver = context.getContentResolver();
+        dialog = new SpotsDialog.Builder()
+                .setContext(getContext()).setCancelable(true)
+                .setMessage(getContext().getString(R.string.loading_message))
+                .build();
     }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority,
                               ContentProviderClient provider, SyncResult syncResult) {
+        Intent intent = new Intent();
+        intent.setAction(getContext().getString(R.string.SYNC_STATUS_ACTION));
+        intent.putExtra(getContext().getString(R.string.sync_status), getContext().getString(R.string.sync_running));
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+
+
         Log.i(TAG, "Beginning network synchronization");
         /**
          * Get the last sync time used in the database to return all data
          * create after last sync time. Fetch from the local database
          */
+
+        String jsonData = donwloadData();
+        updateLocalDatabase(jsonData);
+        Log.i(TAG, "Streaming completed");
+        /**
+         * Send a broadcast to update list view
+         */
+        intent = new Intent();
+        intent.setAction(getContext().getString(R.string.refresh_list_broadcast));
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+        intent = new Intent();
+        intent.setAction(getContext().getString(R.string.SYNC_STATUS_ACTION));
+        intent.putExtra(getContext().getString(R.string.sync_status), getContext().getString(R.string.sync_finished));
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+
+
+    }
+
+
+
+    public String donwloadData() {
         SharedPreferences pref = getContext().getSharedPreferences(
                 getContext().getString(R.string.shared_preference_file),
                 Context.MODE_PRIVATE);
         String phone_number = pref.getString(
                 getContext().getString(R.string.phone_number), null);
         String lastSyncTime = pref.getString(
-                getContext().getString(R.string.last_time_sync), null);
+                getContext().getString(R.string.last_time_sync), "");
         String mToken = pref.getString(
                 getContext().getString(R.string.firebase_token), null);
-        if (mToken == null) {
-            mToken = askFirebaseToken();
-        }
-        String url = Constante.SERVER_PATH + "sync.php?phone_number=" +
-                phone_number + "&last_time_sync=" + lastSyncTime + "&token=" + mToken;
-        Log.i(TAG, "Last time Sync " + lastSyncTime + " from " + url);
-        String jsonData = donwloadData(url);
-        updateLocalDatabase(jsonData);
-        Log.i(TAG, "Streaming completed");
-        /**
-         * Send a broadcast to update list view
-         */
-        Intent intent = new Intent();
-        intent.setAction(getContext().getString(R.string.refresh_list_broadcast));
-        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
-        /**
-         * Update last time sync
-         */
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String currentTime = sdf.format(new Date());
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString(getContext().getString(R.string.last_time_sync), currentTime);
-        editor.apply();
-    }
 
-    private String askFirebaseToken() {
-        Log.w(TAG, "Asking a Token Again");
-        FirebaseApp.initializeApp(getContext());
-        InstanceIdResult rst = FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(
-                new OnSuccessListener<InstanceIdResult>() {
-                    @Override
-                    public void onSuccess(InstanceIdResult instanceIdResult) {
-                        final String newToken = instanceIdResult.getToken();
-                        SharedPreferences pref = getContext().getSharedPreferences(
-                                getContext().getString(R.string.shared_preference_file), Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = pref.edit();
-                        editor.putString(getContext().getString(R.string.firebase_token), newToken);
-                        editor.apply();
-                    }
-                }).getResult();
-        String newToken = rst.getToken();
-        Log.w(TAG, newToken);
-        return newToken;
-    }
+        String url = getContext().getString(R.string.sync_url);
 
-
-    public String donwloadData(String url) {
+        Log.w(TAG, mToken);
+        Log.i(TAG, "Last time Sync " + lastSyncTime + " from " + url + " " + phone_number);
         OkHttpClient client = new OkHttpClient();
+        RequestBody body =new FormBody.Builder()
+                .add("phone_number", phone_number)
+                .add("last_time_sync", lastSyncTime)
+                .add("token", mToken)
+                .build();
         Request request = new Request.Builder()
                 .url(url)
+                .post(body)
                 .build();
         Response response;
         String jsonData = null;
@@ -159,6 +162,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         JSONArray studentData = data.getJSONArray("students");
                         syncStudent(studentData);
                     }
+                    SharedPreferences pref = getContext().getSharedPreferences(
+                            getContext().getString(R.string.shared_preference_file),
+                            Context.MODE_PRIVATE);
+                    /**
+                     * Update last time sync
+                     */
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String currentTime = sdf.format(new Date());
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putString(getContext().getString(R.string.last_time_sync), currentTime);
+                    editor.apply();
                 } catch (JSONException ex) {
                     ex.printStackTrace();
                     Log.e(TAG, ex.getMessage());

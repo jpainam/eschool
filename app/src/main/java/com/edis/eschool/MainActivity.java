@@ -131,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements StudentFragment.O
                 ContentResolver.SYNC_EXTRAS_MANUAL, true);
         settingsBundle.putBoolean(
                 ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        settingsBundle.putBoolean(getString(R.string.SYNC_STATUS_ACTION), true);
         /*
          * Request the sync for the default account, authority, and
          * manual sync settings

@@ -1,4 +1,4 @@
-package com.edis.eschool.notification;
+package com.edis.eschool.notes;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,10 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.edis.eschool.NotificationRecyclerViewAdapter;
 import com.edis.eschool.R;
-import com.edis.eschool.notification.dummy.DummyContent;
-import com.edis.eschool.notification.dummy.DummyContent.DummyItem;
+import com.edis.eschool.notes.dummy.DummyContent;
+import com.edis.eschool.notes.dummy.DummyContent.DummyItem;
+
+import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -21,7 +22,7 @@ import com.edis.eschool.notification.dummy.DummyContent.DummyItem;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class NotificationFragment extends Fragment {
+public class NotesActivityFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -33,13 +34,13 @@ public class NotificationFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public NotificationFragment() {
+    public NotesActivityFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static NotificationFragment newInstance(int columnCount) {
-        NotificationFragment fragment = new NotificationFragment();
+    public static NotesActivityFragment newInstance(int columnCount) {
+        NotesActivityFragment fragment = new NotesActivityFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -58,7 +59,7 @@ public class NotificationFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_notification_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_notes_list, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -69,7 +70,7 @@ public class NotificationFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new NotificationRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyNotesRecyclerViewAdapter(DummyContent.ITEMS, mListener));
         }
         return view;
     }

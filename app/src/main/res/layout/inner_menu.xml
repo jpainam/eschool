@@ -9,8 +9,16 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="5dp"
+        android:orientation="vertical"
         android:background="@android:color/holo_blue_dark">
         <TextView
+            android:id="@+id/studentDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:text="Main menu"/>
+        <TextView
+            android:id="@+id/detailClasse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
@@ -24,57 +32,132 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:gravity="center">
-
         <TableRow
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:showDividers="end">
 
                 <android.support.v7.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/absence"
-                    android:layout_width="160dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
                     android:layout_margin="10dp"
                     android:clickable="true"
+                    android:id="@+id/noteCard"
                     android:foreground="?android:attr/selectableItemBackground"
                     cardview:cardCornerRadius="4dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@android:color/darker_gray"
                         android:orientation="vertical">
 
                         <ImageView
-                            android:id="@+id/imageenfant7"
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
+                            android:layout_height="80dp"
                             android:background="@color/colorAccent_Translucent"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_absence_ind_black_24dp" />
+                            android:src="@drawable/ic_note_black_24dp" />
 
                         <TextView
-                            android:id="@+id/nomenfant6"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@android:color/darker_gray"
                             android:gravity="center"
-                            android:text="absence"
+                            android:text="Notes"
                             android:textColor="@color/colorPrimary"
-                            android:textSize="13sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
 
 
                 </android.support.v7.widget.CardView>
 
                 <android.support.v7.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/contact"
-                    android:layout_width="160dp"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:clickable="true"
+                    android:id="@+id/bulletinCard"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    cardview:cardCornerRadius="4dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="80dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_bulletin_black_24dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@android:color/darker_gray"
+                            android:gravity="center"
+                            android:text="Bulletin"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </android.support.v7.widget.CardView>
+            </LinearLayout>
+        </TableRow>
+
+        /////////
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:showDividers="end">
+
+                <android.support.v7.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    android:clickable="true"
+                    android:id="@+id/absenceCard"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    cardview:cardCornerRadius="4dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="80dp"
+                            android:background="@color/colorAccent_Translucent"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_absence_black_24dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@android:color/darker_gray"
+                            android:gravity="center"
+                            android:text="Absence"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:clickable="true"
@@ -84,24 +167,20 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@android:color/darker_gray"
                         android:orientation="vertical">
 
                         <ImageView
-                            android:id="@+id/imageenfant11"
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
-                            android:background="@color/colorAccent_Translucent"
+                            android:layout_height="80dp"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_contact_phone_black_24dp" />
+                            android:src="@drawable/ic_punition_black_24dp" />
 
                         <TextView
-                            android:id="@+id/nomenfant12"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@android:color/darker_gray"
                             android:gravity="center"
-                            android:text="contact"
+                            android:text="Punitions"
                             android:textColor="@color/colorPrimary"
                             android:textSize="13sp" />
                     </LinearLayout>
@@ -117,11 +196,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:showDividers="end">
 
                 <android.support.v7.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/finance"
-                    android:layout_width="160dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:clickable="true"
@@ -131,30 +210,27 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@android:color/darker_gray"
                         android:orientation="vertical">
 
                         <ImageView
-                            android:id="@+id/imageenfant6"
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
-                            android:background="@color/colorAccent_Translucent"
+                            android:layout_height="80dp"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_finance_on_black_24dp" />
+                            android:src="@drawable/ic_attach_money_black_24dp" />
+
                         <TextView
-                            android:id="@+id/nomenfant7"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@android:color/darker_gray"
                             android:gravity="center"
-                            android:text="finance"
+                            android:text="Finances"
                             android:textColor="@color/colorPrimary"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
+
                 <android.support.v7.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/notes"
-                    android:layout_width="160dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:clickable="true"
@@ -164,34 +240,32 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@android:color/darker_gray"
                         android:orientation="vertical">
 
                         <ImageView
-                            android:id="@+id/imageenfant61"
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
-                            android:background="@color/colorAccent_Translucent"
+                            android:layout_height="80dp"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_event_note_black_24dp" />
+                            android:src="@drawable/ic_emplois_black_24dp" />
 
                         <TextView
-                            android:id="@+id/nomenfant17"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@android:color/darker_gray"
                             android:gravity="center"
-                            android:text="notes"
+                            android:text="Emplois"
                             android:textColor="@color/colorPrimary"
-                            android:textSize="13sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
             </LinearLayout>
         </TableRow>
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center">
+            android:gravity="center"
+            android:showDividers="end">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -199,40 +273,37 @@
                 android:orientation="horizontal">
 
                 <android.support.v7.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/convocation"
-                    android:layout_width="160dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:clickable="true"
                     android:foreground="?android:attr/selectableItemBackground"
                     cardview:cardCornerRadius="4dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@android:color/darker_gray"
                         android:orientation="vertical">
+
                         <ImageView
-                            android:id="@+id/imageenfant68"
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
-                            android:background="@color/colorAccent_Translucent"
+                            android:layout_height="80dp"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_convocation_black_24dp" />
 
                         <TextView
-                            android:id="@+id/nomenfant57"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@android:color/darker_gray"
                             android:gravity="center"
-                            android:text="convocation"
+                            android:text="Convocations"
                             android:textColor="@color/colorPrimary"
-                            android:textSize="13sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
+
                 <android.support.v7.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/transfere"
-                    android:layout_width="160dp"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:clickable="true"
@@ -242,26 +313,22 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@android:color/darker_gray"
                         android:orientation="vertical">
 
                         <ImageView
-                            android:id="@+id/imageenfant611"
                             android:layout_width="match_parent"
-                            android:layout_height="100dp"
-                            android:background="@color/colorAccent_Translucent"
+                            android:layout_height="80dp"
                             android:scaleType="fitCenter"
-                            android:src="@drawable/ic_transfer_within_a_station_black_24dp" />
+                            android:src="@drawable/ic_manuel_black_24dp" />
 
                         <TextView
-                            android:id="@+id/nomenfant171"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@android:color/darker_gray"
                             android:gravity="center"
-                            android:text="transfere"
+                            android:text="Manuels"
                             android:textColor="@color/colorPrimary"
-                            android:textSize="13sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
             </LinearLayout>

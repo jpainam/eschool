@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.edis.eschool.R;
 
-import com.edis.eschool.dummy.DummyContent.DummyItem;
 import com.edis.eschool.pojo.Student;
 import com.edis.eschool.utils.Constante;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -22,11 +21,13 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link StudentFragment.OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
+
+
+
+
+
+
+
 public class StudentRecyclerViewAdapter extends RecyclerView.Adapter<StudentRecyclerViewAdapter.ViewHolder> {
 
     private final List<Student> mValues;

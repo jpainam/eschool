@@ -266,7 +266,7 @@ public class StudentFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case  R.id.refresh_menu_item:
-                Log.i(TAG, "Refresh Menu Clicked");
+                doManualSyncAsync();
                 return false;
                 default:
                     break;

@@ -1,27 +1,26 @@
-package com.edis.eschool;
+package com.edis.eschool.notes;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.edis.eschool.notification.NotificationFragment.OnListFragmentInteractionListener;
-import com.edis.eschool.notification.dummy.DummyContent.DummyItem;
+import com.edis.eschool.R;
+import com.edis.eschool.notes.dummy.DummyContent.DummyItem;
 
 import java.util.List;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
+ * specified {@link NotesActivityFragment.OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<NotificationRecyclerViewAdapter.ViewHolder> {
+public class MyNotesRecyclerViewAdapter extends RecyclerView.Adapter<MyNotesRecyclerViewAdapter.ViewHolder> {
 
     private final List<DummyItem> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private final NotesActivityFragment.OnListFragmentInteractionListener mListener;
 
-    public NotificationRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyNotesRecyclerViewAdapter(List<DummyItem> items, NotesActivityFragment.OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -29,7 +28,7 @@ public class NotificationRecyclerViewAdapter extends RecyclerView.Adapter<Notifi
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_notification, parent, false);
+                .inflate(R.layout.fragment_notes, parent, false);
         return new ViewHolder(view);
     }
 
